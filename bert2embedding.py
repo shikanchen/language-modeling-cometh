@@ -84,9 +84,6 @@ def combineModelFlair(publishers, documents, ignores, output):
 	flair_backward_embedding = FlairEmbeddings('multi-backward')
 
 	for publisher, document in zip(publishers, documents):
-		# if publisher in ignores:
-		# 	print(f"\nEmbedding sentences for {publisher} is ignored")
-		# 	continue
 
 		print(f"\nEmbedding sentences for {publisher}...")
 
@@ -110,7 +107,10 @@ def combineModelFlair(publishers, documents, ignores, output):
 
 		for sep in numpy.array(sent_tokenize(document.lower())):
 			sentence = Sentence(sep)
-			stacked_embeddings.embed(sentence)
+			try:
+				stacked_embeddings.embed(sentence)
+			except:
+				continue
 
 			# now check out the embedded tokens.
 			for token in sentence:
@@ -118,9 +118,6 @@ def combineModelFlair(publishers, documents, ignores, output):
 					embeddingVectors[publisher][token.text].append(token.embedding.tolist())
 				else:
 					embeddingVectors[publisher][token.text] = [token.embedding.tolist()]
-				
-				# print(token.text)
-				# print(token.embedding)
 
 		# save embedding
 		Path(os.path.join(output, 'embedding', publisher)).mkdir(parents=True, exist_ok=True)
@@ -156,8 +153,8 @@ def trainModel(data, output):
 	return ignores
 
 def main():
-	path = '/remote/ayuser/chens24/data/'
-	output = '/remote/ayuser/chens24/output/'
+	path = '/my/path/to/data/'
+	output = '/my/path/to/output/'
 	components = 30
 
 	nltk.download('punkt')
