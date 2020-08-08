@@ -14,9 +14,11 @@ import subprocess
 import json
 import sys
 import shutil
+import unicodedata
 
 import passages2topics
 
+KEYWORD = 'my_keyword'
 
 def defineCorpus(publishers, passages, documents, output, mode='w'):
 	ignore_list = set()
@@ -132,6 +134,36 @@ def combineModelFlair(publishers, documents, ignores, output):
 
 	return ignores		
 
+# Only call saveEmbedding when enough memory is available
+def saveEmbedding(embeddingVectors, output):
+	print(f"Loading embedding vectors for `{KEYWORD}`...")
+	wordEmbeddingVectors = dict()
+	for publisher, vectors in embeddingVectors.items():
+		if KEYWORD in embeddingVectors:
+			wordEmbeddingVectors[publisher] = embeddingVectors[KEYWORD]
+	
+	with open(os.path.join(output, 'embedding', f'{KEYWORD}_EmbeddingVectors.json'), 'w+') as fp:
+		json.dump(wordEmbeddingVectors, fp)
+	print(f"Embedding vectors saved")
+
+# Call loadEmbedding when memory is limited
+def loadEmbedding(publishers, output):
+	keyEmbeddings = dict()
+	
+	for publisher in publishers:
+		embedding_path = os.path.join(output, 'embedding', publisher, 'embeddingVector.json')
+		embedding = json.load(open(embedding_path))
+		print(f'loading embedding of {publisher}...')
+		if KEYWORD in embedding:
+			print(f'Keyword {KEYWORD} found')
+			keyEmbeddings[publisher] = embedding[KEYWORD]
+		else:
+			keyEmbeddings[publisher] = None
+	
+	with open(os.path.join(output, 'embedding', f'{token}_EmbeddingVectors.json'), 'w+') as fp:
+			json.dump(keyEmbeddings, fp)
+
+
 def trainModel(data, output):
 	
 	# unpack data
@@ -145,10 +177,16 @@ def trainModel(data, output):
 	fineTuneEmbedding(publishers, output)
 
 	# generate evaluation for fine-tuning results
-	# generateFineTuneAnalysis(publishers, output)
+#	generateFineTuneAnalysis(publishers, output)
 
 	# train embedding to produce embedding vectors
 	ignores = combineModelFlair(publishers, documents, ignores, output)
+		
+	# save embeddings for certain word
+#	saveEmbedding(embeddingVectors, output)
+	
+	# load embeddings for keyword
+	loadEmbedding(publishers, output)
 
 	return ignores
 
