@@ -16,7 +16,7 @@ import sys
 import shutil
 import unicodedata
 
-import passages2topics
+import my_script_to_load_data
 
 KEYWORD = 'my_keyword'
 
@@ -198,8 +198,8 @@ def main():
 	nltk.download('punkt')
 
 	# load text and publisher data
-	publishers, passages, documents = passages2topics.processPassages(path)
-	merged_publishers, merged_passages, merged_documents = passages2topics.mergeDocuments(publishers, passages, documents)
+	publishers, passages, documents = my_script_to_load_data.processPassages(path)
+	merged_publishers, merged_passages, merged_documents = my_script_to_load_data.mergeDocuments(publishers, passages, documents)
 	
 	merged_data = (merged_publishers, merged_passages, merged_documents)
 	
