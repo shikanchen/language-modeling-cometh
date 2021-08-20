@@ -1,4 +1,5 @@
 # language-modeling-cometh
+This repo stores the work I participated in the URP, COMETH, at RPI.
 
 ## preprocess corpus
 we preprocess the corpus for fine-tuning
